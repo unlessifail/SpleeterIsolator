@@ -11,19 +11,19 @@ class SpleeterApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Spleeter Vocal Isolator")
-        selfbuild.__ui()
+        self._build_ui()
 
     def _build_ui(self):
         self.file_path = tk.StringVar()
         self.output_format = tk.StringVar()
         self.processing = tk.BooleanVar(value=False)
 
-        self._build_file()
-_selector        self._build_format_entry()
-        selfbuild.__process_button()
-        selfbuild.__progress_bar()
+        self._build_file_selector()
+        self._build_format_entry()
+        self._build_process_button()
+        self._build_progress_bar()
 
-    defbuild __file_selector(self):
+    def _build_file_selector(self):
         self.select_file_button = tk.Button(self.root, text="Select File", command=self._select_file)
         self.select_file_button.pack()
 
@@ -45,15 +45,15 @@ _selector        self._build_format_entry()
         self.file_path.set(filedialog.askopenfilename())
 
     def _start_processing(self):
-        if not selfvalidate.__inputs():
+        if not self._validate_inputs():
             return
 
         self.process_button.config(state='disabled')
         self.processing.set(True)
-        threading.Thread(target=selfprocess.__audio).start()
-        self.root.after(100, selfupdate.__progress)
+        threading.Thread(target=self._process_audio).start()
+        self.root.after(100, self._update_progress)
 
-    defvalidate __inputs(self):
+    def _validate_inputs(self):
         if not os.path.isfile(self.file_path.get()):
             messagebox.showerror("Error", "Invalid file path")
             return False
@@ -64,7 +64,7 @@ _selector        self._build_format_entry()
 
         return True
 
-    defprocess __audio(self):
+    def _process_audio(self):
         try:
             separator = Separator('spleeter:2stems')
             separator.separate_to_file(self.file_path.get(), '/output/path', codec=self.output_format.get())
@@ -73,14 +73,14 @@ _selector        self._build_format_entry()
         finally:
             self.processing.set(False)
 
-    defupdate __progress(self):
+    def _update_progress(self):
         if self.processing.get():
             self.progress.step()
             self.root.after(100, self._update_progress)
         else:
             self._processing_finished()
 
-    defprocessing __finished(self):
+    def _processing_finished(self):
         self.progress.stop()
         self.process_button.config(state='normal')
         if not messagebox.askyesno("Success", "Audio processed successfully. Process another file?"):
@@ -91,5 +91,5 @@ def main():
     app = SpleeterApp(root)
     root.mainloop()
 
-ifname ____ ==main "____":
+if __name__ == "__main__":
     main()
